@@ -27,7 +27,7 @@ dependencies:
   permission_handler: ^11.3.1
   #Add new web package
   web: ^1.1.0
-  flutter_plugin_android_lifecycle: ^2.0.21
+  flutter_plugin_android_lifecycle: 2.0.21
 dev_dependencies:
   flutter_test:
     sdk: flutter
