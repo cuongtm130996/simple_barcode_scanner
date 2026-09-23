@@ -48,7 +48,19 @@ let ONLY_BARCODE = [
 
 public class SwiftFlutterBarcodeScannerPlugin: NSObject, FlutterPlugin, ScanBarcodeDelegate,FlutterStreamHandler {
     
-    public static var viewController = UIViewController()
+    // Resolved lazily: under the UIScene lifecycle the app delegate has no window at
+    // plugin registration time, so the root VC must be looked up when it is needed.
+    public static var viewController: UIViewController {
+        if #available(iOS 13.0, *) {
+            let windows = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap { $0.windows }
+            if let root = (windows.first { $0.isKeyWindow } ?? windows.first)?.rootViewController {
+                return root
+            }
+        }
+        return UIApplication.shared.delegate?.window??.rootViewController ?? UIViewController()
+    }
     public static var lineColor:String=""
     public static var cancelButtonText:String=""
     public static var isShowFlashIcon:Bool=false
@@ -61,7 +73,6 @@ public class SwiftFlutterBarcodeScannerPlugin: NSObject, FlutterPlugin, ScanBarc
 
 
     public static func register(with registrar: FlutterPluginRegistrar) {
-        viewController = (UIApplication.shared.delegate?.window??.rootViewController)!
         let channel = FlutterMethodChannel(name: "flutter_barcode_scanner", binaryMessenger: registrar.messenger())
         let instance = SwiftFlutterBarcodeScannerPlugin()
         registrar.addMethodCallDelegate(instance, channel: channel)
