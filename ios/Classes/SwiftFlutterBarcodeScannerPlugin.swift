@@ -292,6 +292,13 @@ class BarcodeScannerViewController: UIViewController {
         self.moveVertically()
     }
 
+    // Under the UIScene lifecycle the view still has zero bounds in viewDidLoad, where the
+    // preview layer is sized, so the camera preview stays black until it is resized here.
+    override public func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        videoPreviewLayer?.frame = view.layer.bounds
+    }
+
     override public func viewDidDisappear(_ animated: Bool){
         // Stop video capture
         captureSession.stopRunning()
@@ -362,7 +369,7 @@ class BarcodeScannerViewController: UIViewController {
     
     func drawUIOverlays(withCompletion processCompletionCallback: () -> Void){
         //    func drawUIOverlays(){
-        let overlayPath = UIBezierPath(rect: view.bounds)
+        let overlayPath = UIBezierPath(rect: screenSize)
         
         let transparentPath = UIBezierPath(rect: CGRect(x: xCor, y: yCor, width: self.isOrientationPortrait ? (screenSize.width*0.8) : (screenSize.height*0.8), height: screenHeight))
         
